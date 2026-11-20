@@ -1,0 +1,7 @@
+class TaxSettings:
+
+    GST_PERCENTAGE = 16
+
+    INCOME_TAX_PERCENTAGE = 4
+
+    FUEL_SURCHARGE_PERCENTAGE = 30

@@ -1,0 +1,7 @@
+class SyncSettings:
+
+    META_SYNC_INTERVAL = 300
+
+    SHOPIFY_SYNC_INTERVAL = 300
+
+    DISCORD_SYNC_INTERVAL = 300

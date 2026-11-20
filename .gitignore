@@ -1,0 +1,16 @@
+# Local PostgreSQL installation and runtime data (not project source)
+/Norfae Database/
+
+# Generated Python artifacts and local environments
+**/__pycache__/
+*.py[cod]
+**/.venv/
+**/venv/
+
+# Local secrets and environment files
+**/.env
+**/.env.*
+!**/.env.example
+
+# Generated Node dependencies
+**/node_modules/

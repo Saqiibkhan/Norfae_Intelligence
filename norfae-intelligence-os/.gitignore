@@ -1,0 +1,19 @@
+# pgAdmin bundled runtime (large executable files)
+Norfae Database/pgAdmin 4/runtime/
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Node
+node_modules/
+
+# IDE
+.vscode/
