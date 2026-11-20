@@ -5,6 +5,7 @@ from app.routers.dashboard import router as dashboard_router
 from app.routers.discord import router as discord_router
 
 from app.routers.expenses import router as expenses_router
+from app.routers.expense_imports import router as expense_imports_router
 
 from app.routers.meta_ads import router as meta_ads_router
 

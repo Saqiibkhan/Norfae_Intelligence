@@ -13,6 +13,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str
 
     APP_ENV: Literal["development", "test", "production"] = "development"
+    SHOPIFY_API_VERSION: str = Field(default="2026-04", pattern=r"^20\d{2}-(01|04|07|10)$")
+    META_API_VERSION: str = Field(default="v27.0", pattern=r"^v\d{1,2}\.0$")
     JWT_SECRET_KEY: SecretStr | None = None
     JWT_ALGORITHM: str = "HS256"
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES: int = Field(default=30, ge=1, le=1440)

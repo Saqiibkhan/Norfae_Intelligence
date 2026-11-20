@@ -21,7 +21,7 @@ MIN_CONCLUSION_SPEND = Decimal("10.00")
 MIN_CONCLUSION_IMPRESSIONS = 100
 MIN_CPC_CLICKS = 20
 UNUSUAL_CHANGE_PERCENT = Decimal("50")
-PURCHASE_VALUE_UNAVAILABLE = "The existing integration does not persist purchase conversion value or attribution windows."
+PURCHASE_VALUE_UNAVAILABLE = "Purchase conversion value is preserved in Meta insight storage but is not exposed in Norfae profitability metrics."
 
 
 def _decimal(value) -> Decimal | None:
@@ -279,7 +279,7 @@ class MarketingIntelligenceService:
             cpc = _rate(spend, clicks)
             cpm = _rate(spend, impressions, Decimal("1000"))
             cpa = _rate(spend, conversions) if conversions and conversions > 0 else None
-            # Conversion value is not returned or persisted by current Meta services.
+            # Meta action values are retained for audit, but Norfae does not treat them as verified revenue.
             roas = None
             prev = previous_by_id.get(entity_id)
             spend_change = ctr_change = None

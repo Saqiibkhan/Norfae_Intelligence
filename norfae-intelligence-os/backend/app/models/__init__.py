@@ -2,6 +2,9 @@ from app.models.analytics_model import Analytics
 from app.models.audit_log_model import AuditLog
 from app.models.creative_model import Creative
 from app.models.expense_model import Expense
+from app.models.expense_import_model import ExpenseImport
+from app.models.shopify_sync_model import ShopifySyncState, ShopifySyncRun
+from app.models.meta_sync_model import MetaSyncState, MetaSyncRun, MetaAdInsight
 from app.models.order_model import Order
 from app.models.product_model import Product
 from app.models.report_model import Report

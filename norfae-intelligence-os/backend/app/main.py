@@ -52,6 +52,7 @@ for _router in (
     dashboard_router,
     discord_router,
     expenses_router,
+    expense_imports_router,
     meta_ads_router,
     orders_router,
     products_router,

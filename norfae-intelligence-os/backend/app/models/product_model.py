@@ -18,7 +18,10 @@ from app.core.database import (
 class Product(Base):
 
     __tablename__ = "products"
-    __table_args__ = (UniqueConstraint("business_id", "sku", name="uq_products_business_sku"),)
+    __table_args__ = (
+        UniqueConstraint("business_id", "sku", name="uq_products_business_sku"),
+        UniqueConstraint("business_id", "shopify_variant_id", name="uq_products_business_shopify_variant"),
+    )
 
     # ===================================
     # PRIMARY
@@ -44,6 +47,17 @@ class Product(Base):
         String,
         index=True
     )
+
+    shopify_product_id = Column(String, nullable=True)
+    shopify_variant_id = Column(String, nullable=True)
+    shopify_sku = Column(String, nullable=True)
+    shopify_status = Column(String, nullable=True)
+    shopify_updated_at = Column(DateTime, nullable=True)
+    shopify_created_at = Column(DateTime, nullable=True)
+    shopify_description = Column(String, nullable=True)
+    shopify_vendor = Column(String, nullable=True)
+    shopify_compare_at_price = Column(Float, nullable=True)
+    shopify_image_url = Column(String(2048), nullable=True)
 
     category = Column(
         String

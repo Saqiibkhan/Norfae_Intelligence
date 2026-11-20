@@ -26,14 +26,20 @@ def _tenant_model_classes():
         Category,
         Creative,
         Expense,
+        ExpenseImport,
         InventoryProduct,
         MetaDailyStats,
+        MetaSyncState,
+        MetaSyncRun,
+        MetaAdInsight,
         Order,
         OrderItem,
         Product,
         ProductMatchMemory,
         Report,
         SettingsModel,
+        ShopifySyncState,
+        ShopifySyncRun,
     )
 
     return (
@@ -44,14 +50,20 @@ def _tenant_model_classes():
         Category,
         Creative,
         Expense,
+        ExpenseImport,
         InventoryProduct,
         MetaDailyStats,
+        MetaSyncState,
+        MetaSyncRun,
+        MetaAdInsight,
         Order,
         OrderItem,
         Product,
         ProductMatchMemory,
         Report,
         SettingsModel,
+        ShopifySyncState,
+        ShopifySyncRun,
     )
 
 

@@ -5,7 +5,8 @@ from sqlalchemy import (
     Float,
     ForeignKey,
     ForeignKeyConstraint,
-    DateTime
+    DateTime,
+    UniqueConstraint,
 )
 
 from sqlalchemy.orm import (
@@ -21,6 +22,7 @@ class OrderItem(Base):
 
     __tablename__ = "order_items"
     __table_args__ = (
+        UniqueConstraint("business_id", "shopify_line_item_id", name="uq_order_items_business_shopify_line"),
         ForeignKeyConstraint(
             ["business_id", "order_id"], ["orders.business_id", "orders.id"],
             name="fk_order_items_business_order", ondelete="CASCADE",
@@ -51,6 +53,11 @@ class OrderItem(Base):
     order_id = Column(
         Integer
     )
+
+    shopify_line_item_id = Column(String, nullable=True)
+    shopify_product_id = Column(String, nullable=True)
+    shopify_variant_id = Column(String, nullable=True)
+    shopify_discount = Column(Float, nullable=True)
 
     # ===================================
     # INVENTORY RELATION

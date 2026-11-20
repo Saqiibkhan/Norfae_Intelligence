@@ -5,3 +5,5 @@ from app.schemas.creative_schema import *
 from app.schemas.report_schema import *
 from app.schemas.analytics_schema import *
 from app.schemas.settings_schema import *
+from app.schemas.shopify_schema import *
+from app.schemas.meta_ads_schema import *

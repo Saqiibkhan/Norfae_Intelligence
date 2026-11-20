@@ -1,4 +1,4 @@
-from pydantic import BaseModel, ConfigDict, Field, SecretStr, model_validator
+from pydantic import BaseModel, ConfigDict, Field, SecretStr, field_validator, model_validator
 from app.utils.shopify_url import normalize_shopify_store_url
 
 
@@ -61,11 +61,23 @@ class SettingsIntegrationUpdate(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     shopify_store_url: str | None = Field(default=None, max_length=500)
-    meta_account_id: str | None = Field(default=None, max_length=200)
+    meta_account_id: str | None = Field(default=None, max_length=64)
     shopify_access_token: SecretStr | None = None
     meta_access_token: SecretStr | None = None
     clear_shopify_access_token: bool = False
     clear_meta_access_token: bool = False
+
+    @field_validator("meta_account_id")
+    @classmethod
+    def validate_meta_account_id(cls, value):
+        if value is None:
+            return value
+        normalized = value.strip()
+        if normalized.startswith("act_"):
+            normalized = normalized[4:]
+        if not normalized.isdigit() or len(normalized) > 32:
+            raise ValueError("Meta ad account ID must contain digits, optionally prefixed by act_.")
+        return normalized
 
     @model_validator(mode="before")
     @classmethod

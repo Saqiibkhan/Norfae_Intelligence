@@ -314,7 +314,12 @@ Detailed formulas and endpoint contracts live in
 - Meta campaign/ad-set/ad APIs make live provider requests when explicitly
   called and the selected business has Meta credentials. Do not call sync or
   provider methods from tests without mocking them.
-- Shopify and Discord integrations also require per-environment credentials.
+- Shopify credentials are stored per business; Discord still uses its configured
+  integration credential.
+- Shopify catalog/order sync is read-only, manually triggered, tenant-scoped, and
+  documented in [`backend/SHOPIFY_INTEGRATION.md`](backend/SHOPIFY_INTEGRATION.md).
+  Set `SHOPIFY_API_VERSION` to a supported quarterly API version if the default
+  needs to change; provider sync tests use mocks and never contact Shopify.
 - OpenRouter is centralized at `backend/app/llm/openrouter_client.py`, uses
   configured model/timeouts/bounded retries, and redacts provider failures.
   No production agent should call it for deterministic calculations.
@@ -332,7 +337,27 @@ Detailed formulas and endpoint contracts live in
   roles, and credential handling.
 - [`backend/MULTITENANCY.md`](backend/MULTITENANCY.md): tenant boundaries,
   migration/backfill state, and isolation guarantees.
+- [`backend/SHOPIFY_INTEGRATION.md`](backend/SHOPIFY_INTEGRATION.md): Shopify
+  scopes, source-of-truth policy, synchronization, and limitations.
 - [`backend/.env.example`](backend/.env.example): configuration names and
   safe placeholders.
 - [`backend/migrations/`](backend/migrations/): Alembic environment and
   revision history.
+# Financial CSV expense import
+
+The backend supports expense imports from UTF-8 CSV files only (UTF-8 BOM is accepted), up to 5 MB and 10,000 data rows. Upload a CSV with a header row and use the preview API to map its headers to `date`, `amount`, and `description` (required), plus optional `category` and `reference`. Dates accept `YYYY-MM-DD`, `MM/DD/YYYY`, `DD/MM/YYYY`, `YYYY/MM/DD`, `MM-DD-YYYY`, and `DD-MM-YYYY`. Amounts must be plain decimal numbers; currency symbols and thousands separators are rejected, negative amounts are not supported, and values round to two decimals using half-up rounding.
+
+Every request requires a bearer token and `X-Business-ID`. The selected business membership must have business update permission to upload or confirm; history requires the normal analytics read permission. Previews are bound to both the authenticated user and selected business, expire after one hour, and contain only normalized validated data. Invalid and duplicate rows are listed in the preview; only rows marked importable are written after explicit confirmation. A failed confirmation rolls back the transaction.
+
+References are checked within the CSV and against the selected business. For rows without a supplied reference, the importer derives a stable internal reference from the file SHA-256 and source row number. Re-uploading the same unchanged file therefore cannot count those rows twice. These records use `source=csv_import` and retain their user category unchanged, so they are not automatically treated as marketing or Meta spend. Import history is available to the same user in the selected business for up to the normal history retention of the database (the row payload is cleared after confirmation).
+
+Example preview request (multipart form):
+
+```bash
+curl -X POST 'http://localhost:8000/expenses/import/preview' \
+  -H 'Authorization: Bearer <token>' -H 'X-Business-ID: 1' \
+  -F 'mapping={"date":"Transaction Date","amount":"Total","description":"Details","category":"Expense Type","reference":"Transaction ID"}' \
+  -F 'file=@expenses.csv;type=text/csv'
+```
+
+Confirm the returned ID with `POST /expenses/import/confirm` using multipart fields `preview_id=<id>` and `confirm=true`. List past previews and imports with `GET /expenses/import/history`. Errors use FastAPI's structured `detail` object with a stable `code` and human-readable `message`. XLSX is not supported.

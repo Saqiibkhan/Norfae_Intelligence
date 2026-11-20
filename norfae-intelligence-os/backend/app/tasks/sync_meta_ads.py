@@ -4,7 +4,8 @@ import logging
 from app.core.database import SessionLocal
 from app.core.tenant_context import tenant_scope
 from app.models.business_model import Business
-from app.services.meta_sync_service import MetaSyncService
+from app.core.timezone import pakistan_now
+from app.services.meta_insights_sync_service import MetaInsightsSyncService
 
 
 logger = logging.getLogger(__name__)
@@ -29,16 +30,11 @@ class MetaAdsSyncTask:
 
             db = SessionLocal()
             try:
-                result = MetaSyncService.sync_today_stats(db)
-                if not isinstance(result, dict) or result.get("success") is not True:
-                    message = result.get("message") if isinstance(result, dict) else None
-                    code = (
-                        "configuration_missing"
-                        if message in {"Settings not found", "Meta credentials missing"}
-                        else "sync_failed"
-                    )
-                    return {"success": False, "error_code": code}
-                return {"success": True}
+                today = pakistan_now().date()
+                result = MetaInsightsSyncService.sync(db, business_id, None, today, today)
+                if result["status"] == "completed":
+                    return {"success": True}
+                return {"success": False, "error_code": result["run"].get("error_category", "sync_failed")}
             except Exception as error:
                 logger.warning(
                     "Meta scheduled sync failed",

@@ -64,15 +64,15 @@ def test_meta_sync_once_success_and_missing_configuration(monkeypatch):
 
     monkeypatch.setattr("app.tasks.sync_meta_ads.SessionLocal", session)
     monkeypatch.setattr(
-        "app.tasks.sync_meta_ads.MetaSyncService.sync_today_stats",
-        lambda _db: {"success": True, "data": {"spend": 12}},
+        "app.tasks.sync_meta_ads.MetaInsightsSyncService.sync",
+        lambda *_args: {"status": "completed", "run": {"error_category": None}},
     )
     assert MetaAdsSyncTask.sync_once(7) == {"success": True}
     assert all(db.closed for db in dbs)
 
     monkeypatch.setattr(
-        "app.tasks.sync_meta_ads.MetaSyncService.sync_today_stats",
-        lambda _db: {"success": False, "message": "Meta credentials missing"},
+        "app.tasks.sync_meta_ads.MetaInsightsSyncService.sync",
+        lambda *_args: {"status": "failed", "run": {"error_category": "configuration_missing"}},
     )
     assert MetaAdsSyncTask.sync_once(7) == {
         "success": False,
@@ -101,7 +101,7 @@ def test_meta_sync_once_controls_service_failures(monkeypatch, caplog):
     def fail(_db):
         raise RuntimeError("provider-private-secret")
 
-    monkeypatch.setattr("app.tasks.sync_meta_ads.MetaSyncService.sync_today_stats", fail)
+    monkeypatch.setattr("app.tasks.sync_meta_ads.MetaInsightsSyncService.sync", fail)
     assert MetaAdsSyncTask.sync_once(7) == {"success": False, "error_code": "sync_failed"}
     assert "provider-private-secret" not in caplog.text
 
@@ -199,7 +199,10 @@ def test_shopify_status_rejects_redirect_provider_error_and_bad_json(monkeypatch
                 raise self.body
             return self.body
 
-    responses = iter((Response(302), Response(500, {"token": "provider-secret"}), Response(200, ValueError("bad"))))
+    # The centralized client makes three bounded attempts for transient server errors.
+    responses = iter((Response(302), Response(500, {"token": "provider-secret"}),
+                      Response(500, {"token": "provider-secret"}), Response(500, {"token": "provider-secret"}),
+                      Response(200, ValueError("bad"))))
     monkeypatch.setattr(shopify_service.requests, "get", lambda *_args, **_kwargs: next(responses))
     for expected in (
         "Shopify redirected the status request; redirects are not followed.",

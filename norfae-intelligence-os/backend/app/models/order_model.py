@@ -13,6 +13,7 @@ class Order(Base):
     __table_args__ = (
         UniqueConstraint("business_id", "id", name="uq_orders_business_id_id"),
         UniqueConstraint("business_id", "internal_order_id", name="uq_orders_business_internal_id"),
+        UniqueConstraint("business_id", "shopify_order_id", name="uq_orders_business_shopify_order"),
     )
 
     # ===================================
@@ -29,6 +30,19 @@ class Order(Base):
     internal_order_id = Column(String, index=True)
 
     shopify_order_id = Column(String, nullable=True)
+    shopify_order_name = Column(String(100), nullable=True)
+    shopify_updated_at = Column(DateTime, nullable=True)
+    shopify_currency = Column(String(3), nullable=True)
+    shopify_financial_status = Column(String(40), nullable=True)
+    shopify_fulfillment_status = Column(String(40), nullable=True)
+    shopify_total_price = Column(Float, nullable=True)
+    shopify_original_total_price = Column(Float, nullable=True)
+    shopify_subtotal_price = Column(Float, nullable=True)
+    shopify_total_discounts = Column(Float, nullable=True)
+    shopify_total_tax = Column(Float, nullable=True)
+    shopify_total_refunded = Column(Float, nullable=True)
+    shopify_shipping_price = Column(Float, nullable=True)
+    shopify_cancelled_at = Column(DateTime, nullable=True)
 
     instagram_order_id = Column(String, nullable=True)
 
